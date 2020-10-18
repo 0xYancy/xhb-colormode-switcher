@@ -9,24 +9,41 @@
 	"name" : "一键切换色彩变量",
   "commands": [
     {
-      "name": "一键变暗",
+      "name": "全局「深色模式」",
       "identifier": "color.my-command-identifier",
       "script": "./my-command.js",
       "handler": "goDark"
     },
 
     {
-      "name": "一键变亮",
+      "name": "全局「浅色模式」",
       "identifier": "go-light",
       "script": "./my-command.js",
       "handler": "goLight"
+    },
+
+
+    {
+      "name": "选中对象「深色模式」",
+      "identifier": "go-dark-slected",
+      "script": "./my-command.js",
+      "handler": "goDarkSlected"
+    },
+
+    {
+      "name": "选中对象「浅色模式」",
+      "identifier": "go-light-slected",
+      "script": "./my-command.js",
+      "handler": "goLightSlected"
     }
   ],
   "menu": {
     "title": "XHBD-深浅一键切换",
     "items": [
       "color.my-command-identifier",
-      "go-light"
+      "go-light",
+      "go-dark-slected",
+      "go-light-slected"
     ]
   }
 }

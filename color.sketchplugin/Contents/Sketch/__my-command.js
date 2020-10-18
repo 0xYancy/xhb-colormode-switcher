@@ -97,7 +97,7 @@ var exports =
 /*!***************************!*\
   !*** ./src/my-command.js ***!
   \***************************/
-/*! exports provided: default, goDark, goLight, importColorV */
+/*! exports provided: default, goDark, goLight, importColorV, goDarkSlected, goLightSlected */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -105,6 +105,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "goDark", function() { return goDark; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "goLight", function() { return goLight; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "importColorV", function() { return importColorV; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "goDarkSlected", function() { return goDarkSlected; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "goLightSlected", function() { return goLightSlected; });
 /* harmony import */ var sketch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sketch */ "sketch");
 /* harmony import */ var sketch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch__WEBPACK_IMPORTED_MODULE_0__);
 
@@ -169,6 +171,10 @@ function goDark() {
   var allLayers = sketch__WEBPACK_IMPORTED_MODULE_0___default.a.find('*'); // 开始遍历
 
   allLayers.forEach(function (layer) {
+    if (layer.sketchObject.class().toString() == "MSSliceLayer") {
+      return;
+    }
+
     layer.style.fills.concat(layer.style.borders).filter(function (item) {
       return item.fillType == 'Color';
     }).forEach(function (item) {
@@ -176,8 +182,10 @@ function goDark() {
         //const comswatch = lightSwatches[i].import()
         if (item.color === colorcompare[i]) {
           item.color = darkSwatches[i].import().referencingColor;
+          break;
         }
-      }
+      } //console.log(layer.name)
+
     });
 
     if (layer.style.textColor) {
@@ -187,6 +195,7 @@ function goDark() {
         //const comswatch = lightSwatches[i].import()
         if (layerColor === colorcompare[i]) {
           layer.style.textColor = darkSwatches[i].import().referencingColor;
+          break;
         }
       }
     }
@@ -209,6 +218,10 @@ function goLight() {
   var allLayers = sketch__WEBPACK_IMPORTED_MODULE_0___default.a.find('*'); // 开始遍历
 
   allLayers.forEach(function (layer) {
+    if (layer.sketchObject.class().toString() == "MSSliceLayer") {
+      return;
+    }
+
     layer.style.fills.concat(layer.style.borders).filter(function (item) {
       return item.fillType == 'Color';
     }).forEach(function (item) {
@@ -216,6 +229,7 @@ function goLight() {
         //const comswatch = darkSwatches[i].import()
         if (item.color === colorcompare[i]) {
           item.color = lightSwatches[i].import().referencingColor;
+          break;
         }
       }
     });
@@ -227,11 +241,13 @@ function goLight() {
         //const comswatch = darkSwatches[i].import()
         if (layerColor === colorcompare[i]) {
           layer.style.textColor = lightSwatches[i].import().referencingColor;
+          break;
         }
       }
     }
   });
-}
+} //加载两个library文件
+
 function importColorV() {
   sketch__WEBPACK_IMPORTED_MODULE_0___default.a.UI.message("开心 🙌"); //确认活着
 
@@ -254,6 +270,131 @@ function importColorV() {
     dark: darklib,
     light: lightlib
   };
+} //显示对象属性方法
+
+function displayProp(obj) {
+  var names = "";
+
+  for (var name in obj) {
+    names += name + ": " + obj[name] + ", ";
+  }
+
+  console.log(names);
+}
+
+function goDarkSlected() {
+  var darklib = importColorV().dark;
+  var lightlib = importColorV().light;
+  var darkSwatches = darklib.getImportableSwatchReferencesForDocument(doc);
+  var lightSwatches = lightlib.getImportableSwatchReferencesForDocument(doc);
+  console.log(darkSwatches.length);
+  console.log(lightSwatches.length); //生成对比数据
+
+  var colorcompare = new Array();
+
+  for (var i = 0; i < 112; i++) {
+    colorcompare[i] = lightSwatches[i].import().color;
+  }
+
+  var mylayers = doc.selectedLayers.layers[0]; //当前选中的第一个对象
+  //关键遍历方法
+
+  function selectChildren(fatherlayer) {
+    var layertype = fatherlayer.sketchObject.class();
+
+    if (layertype.toString() == "MSSliceLayer") {
+      return;
+    } //如果对象是切图则退出
+
+
+    fatherlayer.style.fills.concat(fatherlayer.style.borders).filter(function (item) {
+      return item.fillType == 'Color';
+    }).forEach(function (item) {
+      for (var i = 0; i < 112; i++) {
+        if (item.color === colorcompare[i]) {
+          item.color = darkSwatches[i].import().referencingColor;
+          break;
+        }
+      } //console.log(fatherlayer.name)
+
+    });
+
+    if (fatherlayer.style.textColor) {
+      var layerColor = fatherlayer.style.textColor;
+
+      for (var i = 0; i < 112; i++) {
+        if (layerColor === colorcompare[i]) {
+          fatherlayer.style.textColor = darkSwatches[i].import().referencingColor;
+          break;
+        }
+      }
+    }
+
+    if (fatherlayer.layers) {
+      console.log("存在子对象");
+      fatherlayer.layers.forEach(selectChildren);
+    }
+  } //调用遍历方法
+
+
+  selectChildren(mylayers);
+}
+function goLightSlected() {
+  var darklib = importColorV().dark;
+  var lightlib = importColorV().light;
+  var darkSwatches = darklib.getImportableSwatchReferencesForDocument(doc);
+  var lightSwatches = lightlib.getImportableSwatchReferencesForDocument(doc);
+  console.log(darkSwatches.length);
+  console.log(lightSwatches.length); //生成对比数据
+
+  var colorcompare = new Array();
+
+  for (var i = 0; i < 112; i++) {
+    colorcompare[i] = darkSwatches[i].import().color; //console.log(colorcompare[i])
+  }
+
+  var mylayers = doc.selectedLayers.layers[0]; //当前选中的第一个对象
+  //关键遍历方法
+
+  function selectChildren(fatherlayer) {
+    var layertype = fatherlayer.sketchObject.class();
+
+    if (layertype.toString() == "MSSliceLayer") {
+      return;
+    } //如果对象是切图则退出
+
+
+    fatherlayer.style.fills.concat(fatherlayer.style.borders).filter(function (item) {
+      return item.fillType == 'Color';
+    }).forEach(function (item) {
+      for (var i = 0; i < 112; i++) {
+        if (item.color === colorcompare[i]) {
+          item.color = lightSwatches[i].import().referencingColor;
+          break;
+        }
+      } //console.log(fatherlayer.name)
+
+    });
+
+    if (fatherlayer.style.textColor) {
+      var layerColor = fatherlayer.style.textColor;
+
+      for (var i = 0; i < 112; i++) {
+        if (layerColor === colorcompare[i]) {
+          fatherlayer.style.textColor = lightSwatches[i].import().referencingColor;
+          break;
+        }
+      }
+    }
+
+    if (fatherlayer.layers) {
+      console.log("存在子对象");
+      fatherlayer.layers.forEach(selectChildren);
+    }
+  } //调用遍历方法
+
+
+  selectChildren(mylayers);
 }
 
 /***/ }),
@@ -287,6 +428,8 @@ module.exports = require("sketch");
 }
 globalThis['goDark'] = __skpm_run.bind(this, 'goDark');
 globalThis['onRun'] = __skpm_run.bind(this, 'default');
-globalThis['goLight'] = __skpm_run.bind(this, 'goLight')
+globalThis['goLight'] = __skpm_run.bind(this, 'goLight');
+globalThis['goDarkSlected'] = __skpm_run.bind(this, 'goDarkSlected');
+globalThis['goLightSlected'] = __skpm_run.bind(this, 'goLightSlected')
 
 //# sourceMappingURL=__my-command.js.map

@@ -78,9 +78,12 @@ export function goDark () {
     }
 
 
-
   const allLayers = sketch.find('*') // 开始遍历
-  allLayers.forEach(layer => {
+
+allLayers.forEach(layer => {
+    if(layer.sketchObject.class().toString() == "MSSliceLayer"){
+      return
+    }
     layer.style.fills
       .concat(layer.style.borders)
       .filter(item => item.fillType == 'Color')
@@ -91,8 +94,11 @@ export function goDark () {
           //const comswatch = lightSwatches[i].import()
           if (item.color === colorcompare[i]){
             item.color = darkSwatches[i].import().referencingColor
+            break;
           }
         }
+
+        //console.log(layer.name)
 
       })
 
@@ -104,6 +110,7 @@ export function goDark () {
           //const comswatch = lightSwatches[i].import()
           if (layerColor === colorcompare[i]){
             layer.style.textColor = darkSwatches[i].import().referencingColor
+            break;
           }
         }
       }
@@ -123,6 +130,7 @@ export function goLight () {
   const darklib = importColorV ().dark
   const lightlib = importColorV ().light
 
+
   const darkSwatches = darklib.getImportableSwatchReferencesForDocument(doc)
   const lightSwatches = lightlib.getImportableSwatchReferencesForDocument(doc)
   
@@ -139,6 +147,9 @@ export function goLight () {
 
   const allLayers = sketch.find('*') // 开始遍历
   allLayers.forEach(layer => {
+    if(layer.sketchObject.class().toString() == "MSSliceLayer"){
+      return
+    }
     layer.style.fills
       .concat(layer.style.borders)
       .filter(item => item.fillType == 'Color')
@@ -149,6 +160,7 @@ export function goLight () {
           //const comswatch = darkSwatches[i].import()
           if (item.color === colorcompare[i]){
             item.color = lightSwatches[i].import().referencingColor
+            break;
           }
         }
 
@@ -162,6 +174,7 @@ export function goLight () {
           //const comswatch = darkSwatches[i].import()
           if (layerColor === colorcompare[i]){
             layer.style.textColor = lightSwatches[i].import().referencingColor
+            break;
           }
         }
       }
@@ -175,7 +188,7 @@ export function goLight () {
 
 
 
-
+//加载两个library文件
 
 
 export function importColorV () {
@@ -202,4 +215,186 @@ export function importColorV () {
   
   return {dark:darklib,light:lightlib}
   
+}
+
+
+
+
+//显示对象属性方法
+function displayProp(obj){    
+  var names="";       
+  for(var name in obj){       
+     names+=name+": "+obj[name]+", ";  
+  }  
+  console.log(names);  
+}
+
+
+
+
+
+export function goDarkSlected (){
+
+
+
+  const darklib = importColorV ().dark
+  const lightlib = importColorV ().light
+
+  const darkSwatches = darklib.getImportableSwatchReferencesForDocument(doc)
+  const lightSwatches = lightlib.getImportableSwatchReferencesForDocument(doc)
+
+  console.log(darkSwatches.length)
+  console.log(lightSwatches.length)
+
+  //生成对比数据
+  var colorcompare = new Array()
+  for (var i = 0; i < 112; i++){
+    colorcompare[i] = lightSwatches[i].import().color
+  }
+
+
+  var mylayers = doc.selectedLayers.layers[0]; //当前选中的第一个对象
+
+
+
+  //关键遍历方法
+  function selectChildren(fatherlayer) {
+
+    var layertype = fatherlayer.sketchObject.class()
+    if (layertype.toString() == "MSSliceLayer"){
+      return
+    }
+    //如果对象是切图则退出
+
+
+    fatherlayer.style.fills
+        .concat(fatherlayer.style.borders)
+        .filter(item => item.fillType == 'Color')
+        .forEach(item => {
+
+
+          for (var i = 0; i < 112; i++){
+
+            if (item.color === colorcompare[i]){
+              item.color = darkSwatches[i].import().referencingColor
+              break;
+            }
+          }
+
+          //console.log(fatherlayer.name)
+
+        })
+
+        if (fatherlayer.style.textColor) {
+        
+          const layerColor = fatherlayer.style.textColor
+          
+          for (var i = 0; i < 112; i++){
+
+            if (layerColor === colorcompare[i]){
+              fatherlayer.style.textColor = darkSwatches[i].import().referencingColor
+              break;
+            }
+          }
+        }
+
+
+    if (fatherlayer.layers) {
+      console.log("存在子对象")
+      fatherlayer.layers.forEach(selectChildren)
+    }
+
+  }
+
+  //调用遍历方法
+  selectChildren(mylayers)
+
+
+}
+
+
+
+
+
+
+
+
+export function goLightSlected (){
+
+
+
+  const darklib = importColorV ().dark
+  const lightlib = importColorV ().light
+
+  const darkSwatches = darklib.getImportableSwatchReferencesForDocument(doc)
+  const lightSwatches = lightlib.getImportableSwatchReferencesForDocument(doc)
+
+  console.log(darkSwatches.length)
+  console.log(lightSwatches.length)
+
+  //生成对比数据
+  var colorcompare = new Array()
+  for (var i = 0; i < 112; i++){
+    colorcompare[i] = darkSwatches[i].import().color
+    //console.log(colorcompare[i])
+  }
+
+
+  var mylayers = doc.selectedLayers.layers[0]; //当前选中的第一个对象
+
+
+
+
+  //关键遍历方法
+  function selectChildren(fatherlayer) {
+
+    var layertype = fatherlayer.sketchObject.class()
+    if (layertype.toString() == "MSSliceLayer"){
+      return
+    }
+    //如果对象是切图则退出
+
+
+    fatherlayer.style.fills
+        .concat(fatherlayer.style.borders)
+        .filter(item => item.fillType == 'Color')
+        .forEach(item => {
+
+          
+          for (var i = 0; i < 112; i++){
+            if (item.color === colorcompare[i]){
+              item.color = lightSwatches[i].import().referencingColor
+              break;
+            }
+          }
+
+          //console.log(fatherlayer.name)
+
+        })
+
+        if (fatherlayer.style.textColor) {
+        
+          const layerColor = fatherlayer.style.textColor
+          
+          for (var i = 0; i < 112; i++){
+
+            if (layerColor === colorcompare[i]){
+              fatherlayer.style.textColor = lightSwatches[i].import().referencingColor
+              break;
+            }
+          }
+        }
+
+
+    if (fatherlayer.layers) {
+      console.log("存在子对象")
+      fatherlayer.layers.forEach(selectChildren)
+    }
+
+  }
+
+  //调用遍历方法
+  selectChildren(mylayers)
+
+
 }
