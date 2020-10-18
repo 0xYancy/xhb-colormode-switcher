@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sketch-hq/SketchAPI/develop/docs/sketch-plugin-manifest-schema.json",
+  "icon": "icon.png",
+  "compatibleVersion": 100,
+  "bundleVersion": 1,
+  "author": "TiE",
+  "version": "0.1",
+  "description": "快速切换色彩变量",
+  "name": "一键切换色彩变量",
+  "commands": [
+    {
+      "name": "一键变暗",
+      "identifier": "color.my-command-identifier",
+      "script": "__my-command.js",
+      "handler": "goDark"
+    },
+    {
+      "name": "一键变亮",
+      "identifier": "go-light",
+      "script": "__my-command.js",
+      "handler": "goLight"
+    }
+  ],
+  "menu": {
+    "title": "XHBD-深浅一键切换",
+    "items": [
+      "color.my-command-identifier",
+      "go-light"
+    ]
+  },
+  "identifier": "Color",
+  "disableCocoaScriptPreprocessor": true,
+  "appcast": "https://raw.githubusercontent.com//master/.appcast.xml"
+}
